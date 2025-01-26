@@ -205,17 +205,163 @@ const poll = {
   // This generates [0, 0, 0, 0]. More in the next section 😃
   //task 1
   registerNewAnswer() {
-    console.log(this.answers);
-    let selected = prompt(`${this.question} \n ${this.options.join('\n')}`);
-    selected = Number(selected);
+    let selected = Number(
+      prompt(`${this.question} \n ${this.options.join('\n')}`)
+    );
     typeof selected == 'number' &&
       selected < this.options.length &&
       this.answers[selected]++;
-    console.log(this.answers);
+    // console.log(this.answers);
+    this.displayResults();
+    this.displayResults('string');
+  },
+  displayResults(type = 'array') {
+    if (type == 'string') {
+      console.log(`Poll results are ${this.answers.join(', ')}`);
+    } else {
+      console.log(this.answers);
+    }
   },
 };
 
 // task 2
 const answerPollBtn = document.querySelector('.poll');
-
 answerPollBtn.addEventListener('click', poll.registerNewAnswer.bind(poll));
+
+//task bonus
+const result1 = { answers: [5, 2, 3] };
+const result2 = { answers: [1, 5, 3, 9, 6, 1] };
+
+const displayResults = poll.displayResults;
+displayResults.call(result1);
+displayResults.call(result1, 'string');
+displayResults.call(result2);
+displayResults.call(result2, 'string');
+
+/***********************
+ *  Immediately Invoked Function Expressions (IIFE)
+ ************************/
+
+const runOnce = function () {
+  console.log('This  will never run when called');
+};
+// runOnce();
+
+//immediately invoked function expression
+//is modern js we dont need to use immediately invoked function as we can create block  {} that will maintain our data privacy
+(function () {
+  console.log('This  will never run again');
+  const isPrivate = 20;
+})();
+
+//same works for arrow function
+(() => {
+  console.log('Once run arrow function');
+})();
+
+{
+  const isPrivate = 10;
+  var notPrivate = 10;
+}
+// console.log(notPrivate);
+
+/***********************
+ * Closures
+ * A closure is the closed over variable environment of the execution context in which a function was created, event after that execution context is gone.
+ * --less formal
+ * A closure gives a function acess to all the variables of its parent function, event after that parent function has returned. The function keeps reference to its outer scope. which preserves the scope chain throughtout time.
+ * A closure makes sure that a function doesn't loose connection to variable that existed at the function's birth place.
+ ************************/
+//Hardest js concept to understand
+//we are not creating clusures simply happens automatically in certain situation we just need to recognize that situation as Clusures
+
+const secureBooking = function () {
+  let passengerCount = 0;
+  return function () {
+    passengerCount++;
+    console.log(`${passengerCount} passengers`);
+  };
+};
+
+//running in Global Execution Context : global scope now contains secureBooking
+const booker = secureBooking(); //->when executed a new execution Context added on the Call Stack -> secureBooking() has passengerCount = 0
+
+//here passengerCount variable is still exist becuase its is in fact reachable by a closure thats the only reason other its should be gone -> in this case variable moved into the heap where it can stay forever -> therefore its cannot be Garbadge collected
+//Clusure
+//booker() function has the access to passsengerCount variable eveniron attached to the function exactly as it was at the time and place that the function was created.
+
+booker(); // passengerCount = 1; //updating the variable
+booker(); //passengerCount = 2 ////updating the variable
+booker(); // passengerCount = 3 ////updating the variable
+console.dir(booker);
+
+//Example 1 of closure
+let f;
+const g = function () {
+  const a = 23;
+  f = function () {
+    console.log(a * 2);
+  };
+};
+
+g();
+// here a variable was access by f function after the execution context of g() function and f function doest not loose the connect of a variable during the birth of the f() function
+f();
+console.clear();
+
+//Example 2 Closure
+const h = function () {
+  const b = 777;
+  f = function () {
+    console.log(b * 2);
+  };
+};
+
+g();
+f();
+console.dir(f); //closure contains value a
+
+//re-assigned f function
+h();
+f();
+
+console.dir(f); ////closure contains value b
+
+//Example 3
+//Timer
+const boardPassengers = function (n, wait) {
+  const perGroup = n / 3;
+  //here clear sign a closure is created as when the boardPassenger() function is called after the execution context 3 second latter setTimeout method accesing the variable which was property of boardPassenger
+  setTimeout(function () {
+    console.log(`we are now boarding all ${n} passengers`);
+    console.log(`There are 3 group, each with ${perGroup} passengers`);
+  }, wait * 1000);
+
+  console.log(`Will start boarding in ${wait} seconds`);
+};
+
+const perGroup = 1000; //the function will use the perGroup variable if the clouse variable is not available
+boardPassengers(180, 3);
+
+///////////////////////////////////////
+// Coding Challenge #2
+
+/* 
+This is more of a thinking challenge than a coding challenge 🤓
+
+Take the IIFE below and at the end of the function, attach an event listener that changes the color of the selected h1 element ('header') to blue, each time the BODY element is clicked. Do NOT select the h1 element again!
+
+And now explain to YOURSELF (or someone around you) WHY this worked! Take all the time you need. Think about WHEN exactly the callback function is executed, and what that means for the variables involved in this example.
+
+GOOD LUCK 😀
+*/
+
+(function () {
+  const header = document.querySelector('h1');
+  header.style.color = 'red';
+
+  document.querySelector('body').addEventListener('click', function () {
+    //get the access of header variable due to closure
+    header.style.color = 'blue';
+  });
+})();
