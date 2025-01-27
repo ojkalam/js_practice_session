@@ -76,14 +76,44 @@ const displayMovements = function (movements) {
       index + 1
     } ${type}</div>
           <div class="movements__date">3 days ago</div>
-          <div class="movements__value">4 000€</div>
+          <div class="movements__value">${value}€</div>
         </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html); //use afterbegin instead of beforeend then the order will be changed
   });
 };
-displayMovements(account1.movements);
 
+const calcPrintBalance = function (account) {
+  const balance = account.movements.reduce(function (acc, value) {
+    return acc + value;
+  }, 0);
+  account.balance = balance;
+  labelBalance.textContent = `${balance} EUR`;
+};
+
+const calcDisplaySummery = function (account) {
+  const movements = account.movements;
+  const incomes = movements
+    .filter(mov => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `${incomes} €`;
+  const outgoings = movements
+    .filter(mov => mov < 0)
+    .reduce((acc, mov) => mov + acc, 0);
+  labelSumOut.textContent = `${Math.abs(outgoings)} €`;
+  // 1.2 percent rate on all deposits
+  const interest = movements
+    .filter(mov => mov > 0)
+    //calculating interest rate on all deposited value
+    .map(mov => (mov * account.interestRate) / 100)
+    //if any interest value goes below 1 then we will not add that to the calculation
+    .filter(mov => mov >= 1)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumInterest.textContent = interest;
+  //chaniing slow the performace and make so we should not perform chaning on large array always we should optimize it
+};
+
+//create username and added to all the account object;
 const createUsername = function (accounts) {
   accounts.forEach(function (account) {
     account.username = account.owner
@@ -97,23 +127,175 @@ const createUsername = function (accounts) {
 };
 createUsername(accounts);
 
-const calcPrintBalance = function (accounts) {
-  accounts.forEach(function (account) {
-    account.balance = account.movements.reduce(function (acc, value) {
-      return acc + value;
-    }, 0);
-  });
+const updateUI = function (account) {
+  displayMovements(account.movements);
+  calcPrintBalance(account);
+  calcDisplaySummery(account);
 };
-calcPrintBalance(accounts);
 
-console.log('accounts', accounts);
+//create login to the account
+let currentAccount;
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault();
+  const username = inputLoginUsername.value;
+  const userpin = Number(inputLoginPin.value);
+  currentAccount = accounts.find(account => {
+    return account.username == username;
+  });
+  if (currentAccount?.pin === userpin) {
+    inputLoginUsername.value = '';
+    inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    labelWelcome.textContent = `Welcome Back, ${currentAccount.owner}`;
+    containerApp.style.opacity = 100;
+    updateUI(currentAccount);
+  }
+});
+
+//Transfer balance to ther account
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const transferToAcc = inputTransferTo.value;
+  const transferAmount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(acc => acc.username === transferToAcc);
+
+  if (
+    transferAmount > 0 &&
+    receiverAcc &&
+    currentAccount.balance >= transferAmount &&
+    //same user cannot give acount to themself
+    receiverAcc?.username !== currentAccount.username
+  ) {
+    //doing transfer
+    currentAccount.movements.push(-transferAmount);
+    receiverAcc.movements.push(transferAmount);
+    // update ui
+    updateUI(currentAccount);
+  }
+});
+
+//loan request feature
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const loanAmount = Number(inputLoanAmount.value);
+  if (
+    loanAmount > 0 &&
+    //any movement is greater than 10% of loan amount then granted
+    currentAccount.movements.some(mov => mov >= loanAmount * 0.1)
+  ) {
+    console.log('granted');
+    currentAccount.movements.push(loanAmount);
+    updateUI(currentAccount);
+    inputLoanAmount.value = '';
+  }
+});
+//account close feature
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  const closeUser = inputCloseUsername.value;
+  const closePin = Number(inputClosePin.value);
+
+  if (currentAccount.username == closeUser && currentAccount.pin == closePin) {
+    const accountIndex = accounts.findIndex(function (acc) {
+      return acc.username === currentAccount.usernamen;
+    });
+    accounts.splice(accountIndex, 1);
+    containerApp.style.opacity = 0;
+    inputCloseUsername.value = '';
+    inputClosePin.value = '';
+  }
+  // console.log('acc', accounts);
+  //now logout window
+});
 //maximum value
 const movementsNew = [200, 450, -400, 3000, -650, -130, 70, 1300];
-const max = movementsNew.reduce(function (acc, mov) {
-  if (acc > mov) return acc;
-  else return mov;
-}, movementsNew[0]);
-console.log(max);
+//Find index Findlastindex and finclast method
+console.log(movementsNew.findLast(mov => true)); //last element based on coditions
+console.log(movementsNew.findLastIndex(mov => true));
+/***********************
+ * Some(ES3 1999) and Every (ES5 2009) method
+ ************************/
+//here only check for Equality
+console.log(movementsNew.includes(-130));
+//but here checks for any conditons and return boolean true or false
+const anyDepposit = movementsNew.some(mov => mov > 0);
+console.log(anyDepposit); //return true , false boolean value to like includes method
+//Every method is close cousine to some method which check for every element has to be matche with the condition then it will return true other wise false
+console.log(
+  movementsNew.every(function (mov) {
+    return mov < 1000;
+  })
+);
+
+//end some
+
+/***********************
+ * Flat and flatMap method ES2019 introduced
+ ************************/
+const farr = [
+  [1, 2, 3, 4],
+  [5, 6, 9, 8],
+  [3, 5, 7, 8],
+];
+//make nested array to a flat array
+console.log(farr.flat()); //no callback function
+//flat method only flatted array one level deep
+const arrDeep = [[[8, 95], 9], 3, 8, farr];
+//we can pass parameter to tell how much level(dimension) should broken the array
+console.log(arrDeep.flat(2));
+//Lets now wants to calculate overall balance from all the account
+const overallBalance = accounts
+  .map(acc => acc.movements)
+  .flat()
+  .reduce((acc, mov) => acc + mov, 0);
+// console.log(accountMovements.reduce((acc, mov) => acc + mov, 0));
+console.log(overallBalance);
+
+const overallBalanceFlatMap = accounts
+  //flatMap can only go 1 level of array so if we need multi level then should use just flat using method chaning
+  .flatMap(acc => acc.movements)
+  .reduce((acc, mov) => acc + mov, 0);
+console.log(overallBalanceFlatMap);
+
+//end flat
+// const max = movementsNew.reduce(function (acc, mov) {
+//   if (acc > mov) return acc;
+//   else return mov;
+// }, movementsNew[0]);
+// console.log(max);
+//PIPELINE
+// const totalDepositsEurToUsd = movementsNew
+//   .filter(mov => mov > 0)
+//   .map(mov => mov * 1.02)
+//   .reduce((acc, mov) => acc + mov, 0);
+
+// console.log('totalDepositsEurToUsd', totalDepositsEurToUsd);
+//FIND method :  retrieve element based on conditions
+// const firstWithdrawal = movementsNew.find(function (mov) {
+//   //will return only the first matched element from the array its will not return array like map, filter, and reduce method
+//   return mov < 0;
+// });
+//Filter return all element that matched the condition as array and FIND only return first matched element from the array
+//Filter method return new array but Find method only return element not array
+
+// const findInd = movementsNew.findIndex()
+// console.log(firstWithdrawal);
+// console.log(accounts);
+
+// const specificAccount = accounts.find(function (acc) {
+//   return acc.owner == 'Sarah Smith';
+// });
+// let specificAccount = [];
+
+// for (const item of accounts) {
+//   if (item.owner == 'Sarah Smith') {
+//     specificAccount = item;
+//     break;
+//   }
+// }
+
+// console.log(specificAccount);
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -189,12 +371,13 @@ randonArr.forEach(function (value, index, originalArray) {
   console.log(originalArray);
 });
 
-*/
-// console.clear();
+
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 const eurToUsd = 1.02;
 
+ ///////////////////////////
 //Map , filter, reduce method
+/////////////////////////////
 
 //map method similiar to forEach method difference is map create brand new array based on original array
 const movementUsd = movements.map(value => value * eurToUsd);
@@ -222,5 +405,61 @@ const balance = movements.reduce(function (accumulator, curValue) {
 }, 0); //accumulator initial value assign
 console.log(balance);
 console.log(movements);
-
+*/
 /////////////////////////////////////////////////
+///////////////////////////////////////
+// Coding Challenge #4
+
+/*
+This time, Julia and Kate are studying the activity levels of different dog breeds.
+
+YOUR TASKS:
+1. Store the the average weight of a "Husky" in a variable "huskyWeight"
+2. Find the name of the only breed that likes both "running" and "fetch" ("dogBothActivities" variable)
+3. Create an array "allActivities" of all the activities of all the dog breeds
+4. Create an array "uniqueActivities" that contains only the unique activities (no activity repetitions). HINT: Use a technique with a special data structure that we studied a few sections ago.
+5. Many dog breeds like to swim. What other activities do these dogs like? Store all the OTHER activities these breeds like to do, in a unique array called "swimmingAdjacent".
+6. Do all the breeds have an average weight of 10kg or more? Log to the console whether "true" or "false".
+7. Are there any breeds that are "active"? "Active" means that the dog has 3 or more activities. Log to the console whether "true" or "false".
+
+BONUS: What's the average weight of the heaviest breed that likes to fetch? HINT: Use the "Math.max" method along with the ... operator.
+
+TEST DATA:
+*/
+const breeds = [
+  {
+    breed: 'German Shepherd',
+    averageWeight: 32,
+    activities: ['fetch', 'swimming'],
+  },
+  {
+    breed: 'Dalmatian',
+    averageWeight: 24,
+    activities: ['running', 'fetch', 'agility'],
+  },
+  {
+    breed: 'Labrador',
+    averageWeight: 28,
+    activities: ['swimming', 'fetch'],
+  },
+  {
+    breed: 'Beagle',
+    averageWeight: 12,
+    activities: ['digging', 'fetch'],
+  },
+  {
+    breed: 'Husky',
+    averageWeight: 26,
+    activities: ['running', 'agility', 'swimming'],
+  },
+  {
+    breed: 'Bulldog',
+    averageWeight: 36,
+    activities: ['sleeping'],
+  },
+  {
+    breed: 'Poodle',
+    averageWeight: 18,
+    activities: ['agility', 'fetch'],
+  },
+];
