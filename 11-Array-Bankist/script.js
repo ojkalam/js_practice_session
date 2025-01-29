@@ -66,9 +66,14 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 //Try to use every operation using methods so that all logic wrapped up its keep code clean
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
+  //we cannot change the original array so we should create/copy array to a new array using slice() method
+  console.log('movs', movements.slice());
+
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
   containerMovements.innerHTML = '';
-  movements.forEach(function (value, index) {
+  movs.forEach(function (value, index) {
     const type = value > 0 ? 'deposit' : 'withdrawal';
     const html = `
         <div class="movements__row">
@@ -208,6 +213,14 @@ btnClose.addEventListener('click', function (e) {
   // console.log('acc', accounts);
   //now logout window
 });
+
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+});
+
 //maximum value
 const movementsNew = [200, 450, -400, 3000, -650, -130, 70, 1300];
 //Find index Findlastindex and finclast method
@@ -322,7 +335,9 @@ mov.forEach(function (value, undefined, set) {
   // console.log(key);
   console.log(set);
 });
+//////////////////////
 //Simple array methods
+//////////////////////
 let arr = ['a', 'b', 'c', 'd'];
 // console.log(arr.slice(2)); //return new array with extracted part of the array
 // console.log(arr.slice(2, 3)); //return new array with extracted part of the array
@@ -459,7 +474,107 @@ const breeds = [
   },
   {
     breed: 'Poodle',
-    averageWeight: 18,
+    averageWeight: 10,
     activities: ['agility', 'fetch'],
   },
 ];
+
+// console.clear();
+
+//task 1
+const huskyWeight = breeds.find(bd => bd.breed == 'Husky').averageWeight;
+console.log('task 1', huskyWeight);
+
+//task 2
+const dogBothActivities = breeds.find((bd, index, arr) => {
+  return bd.activities?.includes('fetch') && bd.activities?.includes('running');
+});
+console.log(dogBothActivities.breed);
+
+//this soluation is for many dog but in the task ask about only dog
+// const dogBothActivities = breeds.filter((bd, index, arr) => {
+//   return bd.activities?.includes('fetch') && bd.activities?.includes('running');
+// });
+// dogBothActivities.map(function (dogBothActivitieBreed) {
+//   console.log('task 2', dogBothActivitieBreed.breed);
+// });
+
+//task 3
+// console.log(breeds);
+const allActivities = breeds.map(bd => bd.activities).flat();
+console.log('task 3', allActivities);
+
+//task 4
+const uniqueActivities = [...new Set(allActivities)];
+console.log('task 4', uniqueActivities);
+
+//task 5
+
+let swimmingAdjacent = breeds
+  .filter(function (bd) {
+    return bd.activities?.includes('swimming');
+  })
+  .flatMap(bd => bd.activities)
+  .filter(activities => activities != 'swimming');
+
+// let swimmingAdjacent2 = breeds
+//   .filter(function (bd) {
+//     return bd.activities?.includes('swimming');
+//   })
+//   .map(bd => bd.activities);
+// console.log([...swimmingAdjacent2]); //instead of flat method we can use SPRED operator
+
+swimmingAdjacent = [...new Set(swimmingAdjacent)];
+console.log('task 5', swimmingAdjacent);
+
+//task 6
+console.log(breeds.every(bd => bd.averageWeight >= 10));
+
+//task 7
+console.log(breeds.some(bd => bd.activities?.length >= 3));
+
+//Bonus
+const heaviestBreads = breeds
+  .filter(bd => bd.activities?.includes('fetch'))
+  .map(bd => bd.averageWeight);
+// console.log(...heaviestBreads);
+console.log(Math.max(...heaviestBreads));
+
+/***********************
+ * Sorting Arrays
+ ************************/
+const owners = ['Tipu', 'Kalam', 'Sabina', 'Samdani'];
+//sort method by default works with strings its not sorting number just alphabetically
+console.log(owners.sort()); //mutated the original array
+console.log(owners);
+
+//return < 0, A, B
+//return > 0, B, A
+//a, b as parameter
+console.log(movementsNew);
+//Sorting number in assending order and dessending order
+console.log(
+  movementsNew.sort(function (nextValue, currentValue) {
+    // console.log(currentValue);
+    // console.log(nextValue);
+    // console.log('');
+
+    //this logic for assending order
+    if (nextValue > currentValue) return 1; //switch order to return 1
+    if (currentValue > nextValue) return -1; //keep order to return -1
+
+    //this logic for dessending order
+    // if (nextValue > currentValue) return -1; //keep order to return -1
+    // if (currentValue > nextValue) return 1; //switch order to return 1
+  })
+);
+console.log('shorcut sorting number');
+
+console.log(
+  movementsNew.sort((nextValaue, currentValue) => nextValaue - currentValue)
+);
+
+console.log(
+  movementsNew.sort((nextValaue, currentValue) => currentValue - nextValaue)
+);
+//IF we have mixed array string and number togather then this sorting method will not work -> not use sort method
