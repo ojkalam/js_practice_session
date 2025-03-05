@@ -578,3 +578,48 @@ console.log(
   movementsNew.sort((nextValaue, currentValue) => currentValue - nextValaue)
 );
 //IF we have mixed array string and number togather then this sorting method will not work -> not use sort method
+
+//Array grouping in ES 2024
+console.log('movementsNew', movementsNew);
+const groupByArr = Object.groupBy(movementsNew, movement => {
+  return movement > 0 ? 'deposits' : 'withdrawals';
+});
+
+console.log('groupByArrg', groupByArr);
+
+//Porgramatically create and Fill array;
+console.log(new Array(1, 3, 4, 5)); //manually create array
+//programmatically create array
+const x = new Array(7); //will be creating 7 empty elements
+console.log(x);
+
+x.fill(4); //fill the full array with value 4
+
+const xr = [25, 8, 6, 9, 3, 10];
+xr.fill(23, 2, 4); //index filling with value
+console.log(xr);
+
+//Array From
+//array constructor
+const yr = Array.from({ length: 7 }, () => 1); //it will create 7 length array fill with 1
+
+console.log(yr);
+const vr = Array.from({ length: 7 }, (_, i) => i + 1); //when we dont use parameter use underscore
+console.log(vr);
+
+const randonDiceRoll = Array.from({ length: 100 }, (_, i) => {
+  return Math.trunc(Math.random() * 6) + 1;
+});
+console.log(randonDiceRoll);
+
+//Using Array from convert nodelist to array
+
+const movementNodeList = document.querySelectorAll('.movements__value');
+console.log(
+  Array.from(movementNodeList, el =>
+    console.log(el.textContent.replace('€', ''))
+  )
+);
+
+console.log([...document.querySelectorAll('.movements__value')]); //converting nodelist using array
+console.log(Array.from({ length: 10 }));
