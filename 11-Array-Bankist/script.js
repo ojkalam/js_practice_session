@@ -623,3 +623,12 @@ console.log(
 
 console.log([...document.querySelectorAll('.movements__value')]); //converting nodelist using array
 console.log(Array.from({ length: 10 }));
+
+console.log('---fill array--done');
+
+//NON-destructive alternative: toReversed, toSorted, toSpliced
+console.log(movementsNew);
+console.log(movementsNew.slice().reverse());
+console.log(movementsNew.toReversed()); //its not mutating the array
+console.log(movementsNew); // original array mutated
+// Learned almost 30 method for arrayi
