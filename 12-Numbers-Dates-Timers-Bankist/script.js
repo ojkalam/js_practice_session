@@ -80,21 +80,34 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 /////////////////////////////////////////////////
 // Functions
-
-const displayMovements = function (movements, sort = false) {
+//format dates
+const formatDate = function (date) {
+  const newdate = new Date(date);
+  const year = newdate.getFullYear();
+  const month = newdate.getMonth();
+  const day = newdate.getDate();
+  return `${day}-${month}-${year}`;
+};
+const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
+  const movements = acc.movements;
+  const compbinedMovementDates = acc.movements.map(function (movValue, index) {
+    return { movement: movValue, movementDate: acc.movementsDates.at(index) };
+  });
 
-  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  if (sort) compbinedMovementDates.sort((a, b) => a.movement - b.movement);
 
-  movs.forEach(function (mov, i) {
-    const type = mov > 0 ? 'deposit' : 'withdrawal';
+  compbinedMovementDates.forEach(function (obj, i) {
+    const { movement, movementDate } = obj;
+    const type = movement > 0 ? 'deposit' : 'withdrawal';
 
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-        <div class="movements__value">${mov}€</div>
+        <div class="movements__date">${formatDate(movementDate)}</div>
+        <div class="movements__value">${movement}€</div>
       </div>
     `;
 
@@ -142,7 +155,7 @@ createUsernames(accounts);
 
 const updateUI = function (acc) {
   // Display movements
-  displayMovements(acc.movements);
+  displayMovements(acc);
 
   // Display balance
   calcDisplayBalance(acc);
@@ -244,10 +257,54 @@ btnClose.addEventListener('click', function (e) {
 let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 });
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
+
+console.log(23 === 23.0);
+
+//conversion
+console.log(Number('23'));
+console.log(+'23'); //same as previous js auto coverting to number
+
+//parsing number from string
+console.log(Number.parseInt('30px', 10)); //second arg called Regex -> in here base 10 numbers only
+
+console.log(Number.parseFloat('2.5rem', 10));
+
+// parseInt(), parseFloat() these are global function so we can directly call them
+
+//isNaN
+console.log(Number.isNaN(100));
+console.log(Number.isNaN('10x'));
+console.log(Number.isNaN(+'10x'));
+console.log(Number.isNaN('sdfdf'));
+console.log(Number.isNaN(10 / 0)); //not a nu,mber
+
+//Fundamental of date and times
+
+//crete a date : 4 ways
+
+const now = new Date();
+console.log(now);
+//parse date from date string
+console.log(new Date('Thu Mar 09 2025'));
+
+console.log(now.getFullYear());
+console.log(now.getMonth());
+console.log(now.getDay());
+console.log(now.getHours());
+console.log(now.getMinutes());
+console.log(now.getMinutes());
+console.log(now.toISOString());
+console.log(now.getTime()); //time stamp
+console.log(new Date(1741205953367)); //time stamp
+console.log(Date.now()); //time stamp
+
+//all get method has set Functions
+//we can do calculation in date
+// we can subtruct date  to calculate Day Passed/;.
