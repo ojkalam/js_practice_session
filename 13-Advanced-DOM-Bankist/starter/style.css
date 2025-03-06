@@ -1,5 +1,6 @@
 /* The page is NOT responsive. You can implement responsiveness yourself if you wanna have some fun 😃 */
 
+/* This CSS snippet defines a set of custom properties (CSS variables) using :root, which applies them globally to the document. Here's a breakdown: */
 :root {
   --color-primary: #5ec576;
   --color-secondary: #ffcb03;
