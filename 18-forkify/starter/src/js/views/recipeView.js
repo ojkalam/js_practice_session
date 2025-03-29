@@ -9,7 +9,7 @@ class RecipeView extends View {
     ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
 
-  _generateRecipeView() {
+  generateMarkup() {
     const recipes = this._data;
     const output = `
         <figure class="recipe__fig">

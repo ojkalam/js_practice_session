@@ -6,7 +6,7 @@ export default class View {
   render(data) {
     this._data = data;
     this._clear();
-    this._generateRecipeView();
+    this.generateMarkup();
   }
   _clear() {
     this._parentElement.innerHTML = '';
