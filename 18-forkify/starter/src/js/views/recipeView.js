@@ -1,60 +1,16 @@
+import View from './View';
 import icons from 'url:../../img/icons.svg';
-class RecipeView {
-  #parentElement = document.querySelector('.recipe');
-  #data;
-  #errorMessage = 'No recipes found for your query. Please try again!';
-  #message;
-
-  render(data) {
-    this.#data = data;
-    this.#clear();
-    this.#generateRecipeView();
-  }
-  #clear() {
-    this.#parentElement.innerHTML = '';
-  }
+class RecipeView extends View {
+  _parentElement = document.querySelector('.recipe');
+  _errorMessage = 'No recipes found for your query. Please try again!';
+  _message;
 
   addHandlerRender(handler) {
     ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
 
-  _errorMessage(errorMessage = this.#errorMessage) {
-    const markup = `<div class="error">
-            <div>
-              <svg>
-                <use href="${icons}#icon-alert-triangle"></use>
-              </svg>
-            </div>
-            <p>${errorMessage}</p>
-          </div>`;
-    this.#clear();
-    this.#parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-  _message(message = this.#message) {
-    const markup = `<div class="message">
-            <div>
-              <svg>
-                <use href="${icons}#icon-smile"></use>
-              </svg>
-            </div>
-            <p>${message}</p>
-          </div>`;
-    this.#clear();
-    this.#parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  _renderSpinner() {
-    const spinner = `<div class="spinner">
-            <svg>
-              <use href="${icons}#icon-loader"></use>
-            </svg>
-          </div>`;
-    this.#clear();
-    this.#parentElement.insertAdjacentHTML('afterbegin', spinner);
-  }
-
-  #generateRecipeView() {
-    const recipes = this.#data;
+  _generateRecipeView() {
+    const recipes = this._data;
     const output = `
         <figure class="recipe__fig">
           <img src="${recipes.image_url}" alt="Tomato" class="recipe__img" />
@@ -146,7 +102,7 @@ class RecipeView {
             </svg>
           </a>
         </div>`;
-    this.#parentElement.insertAdjacentHTML('afterbegin', output);
+    this._parentElement.insertAdjacentHTML('afterbegin', output);
   }
 }
 
