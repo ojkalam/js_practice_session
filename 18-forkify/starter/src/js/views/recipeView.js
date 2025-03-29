@@ -9,6 +9,14 @@ class RecipeView extends View {
     ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
 
+  addHandlerUpdateServings(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btnTiny = e.target.closest('.btn--tiny');
+      if (!btnTiny) return;
+      const { updateTo } = btnTiny.dataset;
+      if (+updateTo > 0) handler(Number(updateTo));
+    });
+  }
   generateMarkup() {
     const recipes = this._data;
     const output = `
@@ -39,12 +47,16 @@ class RecipeView extends View {
             <span class="recipe__info-text">servings</span>
 
             <div class="recipe__info-buttons">
-              <button class="btn--tiny btn--increase-servings">
+              <button data-update-to=${
+                this._data.servings - 1
+              } class="btn--tiny btn--decrease-servings">
                 <svg>
                   <use href="${icons}#icon-minus-circle"></use>
                 </svg>
               </button>
-              <button class="btn--tiny btn--increase-servings">
+              <button data-update-to=${
+                this._data.servings + 1
+              } class="btn--tiny btn--increase-servings">
                 <svg>
                   <use href="${icons}#icon-plus-circle"></use>
                 </svg>
@@ -102,7 +114,7 @@ class RecipeView extends View {
             </svg>
           </a>
         </div>`;
-    this._parentElement.insertAdjacentHTML('afterbegin', output);
+    return output;
   }
 }
 

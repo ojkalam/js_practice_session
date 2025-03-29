@@ -4,9 +4,39 @@ import icons from 'url:../../img/icons.svg';
 export default class View {
   _data;
   render(data) {
+    if (!data || (Array.isArray(data) && data.length === 0))
+      return this.errorMessage();
     this._data = data;
+    const markup = this.generateMarkup();
     this._clear();
-    this.generateMarkup();
+    //this line is for rendering the generated output to parent element
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+  update(data) {
+    this._data = data;
+    const newMarkup = this.generateMarkup();
+    //we will campare the new markup with old marketup then change text and attribute with new element
+    const newDom = document.createRange().createContextualFragment(newMarkup); //this is for creating virtual dom to manipulate
+    const newElements = Array.from(newDom.querySelectorAll('*'));
+    const curElements = Array.from(this._parentElement.querySelectorAll('*'));
+    console.log(newElements, curElements);
+    newElements.forEach((newEl, i) => {
+      const curEl = curElements[i];
+      // console.log(curEl, newEl.isEqualNode(curEl));
+      //update Changed Text
+      if (
+        !newEl.isEqualNode(curEl) &&
+        newEl.firstChild?.nodeValue.trim() !== ''
+      ) {
+        curEl.textContent = newEl.textContent;
+      }
+      //update Changed Attribute
+      if (!newEl.isEqualNode(curEl)) {
+        Array.from(newEl.attributes).forEach(attr =>
+          curEl.setAttribute(attr.name, attr.value)
+        );
+      }
+    });
   }
   _clear() {
     this._parentElement.innerHTML = '';

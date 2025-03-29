@@ -16,7 +16,6 @@ export const getJSON = async function (url) {
     return data;
   } catch (err) {
     //if we want to get this error into our model.js then we have to rethrough the error
-    console.log(err);
     throw err;
   }
 };

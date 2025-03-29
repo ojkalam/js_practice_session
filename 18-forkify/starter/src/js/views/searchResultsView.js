@@ -5,10 +5,12 @@ class SearchResultsView extends View {
   _errorMessage = 'No search results found. Please try again!';
   //we can create a new view page using resultView where we can put everything on there
   generateMarkup() {
-    this._clear();
+    const id = window.location.hash.slice(1);
     const output = this._data.reduce((acc, value) => {
       return (acc += `<li class="preview">
-                <a class="preview__link preview__link--active" href="#${value.id}">
+                <a class="preview__link ${
+                  value.id === id ? 'preview__link--active' : ''
+                }" href="#${value.id}">
                   <figure class="preview__fig">
                     <img src="${value.image}" alt="Test" />
                   </figure>
@@ -24,8 +26,7 @@ class SearchResultsView extends View {
                 </a>
               </li>`);
     }, '');
-
-    this._parentElement.insertAdjacentHTML('beforeend', output);
+    return output;
   }
 }
 
