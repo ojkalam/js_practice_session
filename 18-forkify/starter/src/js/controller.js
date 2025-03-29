@@ -2,22 +2,15 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
-const recipeContainer = document.querySelector('.recipe');
-
-const timeout = function (s) {
-  return new Promise(function (_, reject) {
-    setTimeout(function () {
-      reject(new Error(`Request took too long! Timeout after ${s} second`));
-    }, s * 1000);
-  });
-};
+import SearchView from './views/searchView.js';
+import searchView from './views/searchView.js';
 
 // NEW API URL (instead of the one shown in the video)
 // https://forkify-api.jonas.io
 
 ///////////////////////////////////////
 
-const showRecipe = async function () {
+const controlRecipe = async function () {
   try {
     const id = window.location.hash.slice(1);
     if (!id) return;
@@ -26,14 +19,33 @@ const showRecipe = async function () {
     await model.loadRecipe(id);
     recipeView.render(model.state.recipe);
   } catch (err) {
-    alert(err);
+    recipeView._errorMessage();
   }
+};
+
+const controlSearchRecipe = async function () {
+  try {
+    const query = searchView.getQuery();
+    if (!query) return;
+    await model.loadSearchResult(query);
+    // console.log(model.state.search.results);
+    searchView.render(model.state.search.results);
+  } catch (error) {}
 };
 
 // window.addEventListener('hashchange', showRecipe);
 // window.addEventListener('load', showRecipe);
 //alternative when multiple event calling same callback
-['hashchange', 'load'].forEach(ev => window.addEventListener(ev, showRecipe));
+
+// ['hashchange', 'load'].forEach(ev =>
+//   window.addEventListener(ev, controlRecipe)
+// );
+//publisher subscriber design pattern
+const init = function () {
+  recipeView.addHandlerRender(controlRecipe);
+  SearchView.addHandlerRender(controlSearchRecipe);
+};
+init();
 
 //MVC Architechture
 //Why worry about arechitecture ?
