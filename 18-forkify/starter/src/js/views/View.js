@@ -19,7 +19,7 @@ export default class View {
     const newDom = document.createRange().createContextualFragment(newMarkup); //this is for creating virtual dom to manipulate
     const newElements = Array.from(newDom.querySelectorAll('*'));
     const curElements = Array.from(this._parentElement.querySelectorAll('*'));
-    console.log(newElements, curElements);
+    // console.log(newElements, curElements);
     newElements.forEach((newEl, i) => {
       const curEl = curElements[i];
       // console.log(curEl, newEl.isEqualNode(curEl));

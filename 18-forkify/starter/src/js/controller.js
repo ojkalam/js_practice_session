@@ -5,6 +5,7 @@ import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import searchResultsView from './views/searchResultsView.js';
 import paginationView from './views/paginationView.js';
+import bookmarksView from './views/bookmarksView.js';
 
 // NEW API URL (instead of the one shown in the video)
 // https://forkify-api.jonas.io
@@ -39,6 +40,8 @@ const controlRecipe = async function () {
     await model.loadRecipe(id);
     recipeView.render(model.state.recipe);
     searchResultsView.update(model.getSearchResultsPage());
+    //each time display recipe bookmark view should updated
+    bookmarksView.update(model.state.bookmarks);
   } catch (err) {
     recipeView.errorMessage();
   }
@@ -71,6 +74,20 @@ const controlServings = function (newServings) {
   // recipeView.render(model.state.recipe);
   recipeView.update(model.state.recipe);
 };
+
+const controlBookmarkView = function () {
+  bookmarksView.render(model.state.bookmarks);
+};
+const controlAddBookmark = function () {
+  //add or remove bookmark
+  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
+  else model.deleteBookmark(model.state.recipe.id);
+  // console.log(model.state);
+  //update recipe view
+  recipeView.update(model.state.recipe);
+  //render bookarmark view
+  bookmarksView.render(model.state.bookmarks);
+};
 // window.addEventListener('hashchange', showRecipe);
 // window.addEventListener('load', showRecipe);
 //alternative when multiple event calling same callback
@@ -80,8 +97,10 @@ const controlServings = function (newServings) {
 // );
 //publisher subscriber design pattern
 const init = function () {
+  bookmarksView.addHandlerRender(controlBookmarkView);
   recipeView.addHandlerRender(controlRecipe);
   recipeView.addHandlerUpdateServings(controlServings);
+  recipeView.addHandlerAddBookmark(controlAddBookmark);
   searchView.addHandlerRender(controlSearchRecipe);
   paginationView.addHandlerClick(controlPagination);
 };

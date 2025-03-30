@@ -17,6 +17,16 @@ class RecipeView extends View {
       if (+updateTo > 0) handler(Number(updateTo));
     });
   }
+
+  addHandlerAddBookmark(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      //its a event delegation
+      //when the initial time btn--bookmark is not available so we cannot add Event listener to non exist element thats why event delegation is usefull this kind of scenario
+      const btn = e.target.closest('.btn--bookmark');
+      if (!btn) return;
+      handler();
+    });
+  }
   generateMarkup() {
     const recipes = this._data;
     const output = `
@@ -69,9 +79,11 @@ class RecipeView extends View {
               <use href="${icons}#icon-user"></use>
             </svg>
           </div>
-          <button class="btn--round">
+          <button class="btn--round btn--bookmark">
             <svg class="">
-              <use href="${icons}#icon-bookmark-fill"></use>
+              <use href="${icons}#icon-bookmark${
+      this._data.bookmarked ? '-fill' : ''
+    }"></use>
             </svg>
           </button>
         </div>
