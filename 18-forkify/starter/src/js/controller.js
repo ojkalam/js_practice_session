@@ -6,6 +6,7 @@ import searchView from './views/searchView.js';
 import searchResultsView from './views/searchResultsView.js';
 import paginationView from './views/paginationView.js';
 import bookmarksView from './views/bookmarksView.js';
+import addRecipeView from './views/addRecipeView.js';
 
 // NEW API URL (instead of the one shown in the video)
 // https://forkify-api.jonas.io
@@ -88,6 +89,25 @@ const controlAddBookmark = function () {
   //render bookarmark view
   bookmarksView.render(model.state.bookmarks);
 };
+
+const controlAddRecipeView = async function (newRecipe) {
+  try {
+    //here we need async function to catch the error from model async function during rejected promise
+    await model.uploadRecipe(newRecipe);
+    addRecipeView.message();
+    recipeView.render(model.state.recipe);
+    bookmarksView.render(model.state.bookmarks);
+
+    //change ID in URL
+    window.history.pushState(null, '', `#${model.state.recipe.id}`); //state, title, url
+    setTimeout(function () {
+      addRecipeView._toggleOverlayWindow();
+    }, 2000);
+  } catch (error) {
+    addRecipeView.errorMessage(error.message);
+  }
+};
+
 // window.addEventListener('hashchange', showRecipe);
 // window.addEventListener('load', showRecipe);
 //alternative when multiple event calling same callback
@@ -103,6 +123,7 @@ const init = function () {
   recipeView.addHandlerAddBookmark(controlAddBookmark);
   searchView.addHandlerRender(controlSearchRecipe);
   paginationView.addHandlerClick(controlPagination);
+  addRecipeView.addHandlerUpload(controlAddRecipeView);
 };
 init();
 

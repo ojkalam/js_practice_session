@@ -3,6 +3,12 @@ import icons from 'url:../../img/icons.svg';
 
 export default class View {
   _data;
+  /***********************
+   *
+   * Use JS doc to write documentation
+   * Render the recieved object to the Dom
+   *
+   ************************/
   render(data) {
     if (!data || (Array.isArray(data) && data.length === 0))
       return this.errorMessage();

@@ -1,7 +1,7 @@
 import { async } from 'regenerator-runtime';
-import { API_URL } from './config.js';
+import { API_KEY, API_URL } from './config.js';
 import { RESULTS_PER_PAGE } from './config.js';
-import { getJSON } from './views/helper.js';
+import { getJSON, sendJSON } from './views/helper.js';
 export const state = {
   recipe: {},
   search: {
@@ -14,7 +14,7 @@ export const state = {
 };
 export const loadRecipe = async function (id) {
   try {
-    const data = await getJSON(`${API_URL}recipes/${id}`);
+    const data = await getJSON(`${API_URL}recipes/${id}?key=${API_KEY}`);
     state.recipe = data.data.recipe;
     if (state.bookmarks.some(bm => bm.id === id))
       state.recipe.bookmarked = true;
@@ -29,13 +29,16 @@ export const loadSearchResult = async function (query) {
   try {
     state.search.page = 1;
     state.search.query = query;
-    const data = await getJSON(`${API_URL}recipes?search=${query}`);
+    const data = await getJSON(
+      `${API_URL}recipes?key=${API_KEY}&search=${query}`
+    );
     state.search.results = data.data.recipes.map(recipe => {
       return {
         id: recipe.id,
         title: recipe.title,
         publisher: recipe.publisher,
         image: recipe.image_url,
+        key: recipe.key,
       };
     });
   } catch (err) {
@@ -54,7 +57,10 @@ export const getSearchResultsPage = function (page = state.search.page) {
 export const updateServings = function (newServings) {
   state.recipe.ingredients.forEach(ing => {
     //change the current ingredient array quantity
-    ing.quantity = (ing.quantity * newServings) / state.recipe.servings;
+    ing.quantity = (
+      (ing.quantity * newServings) /
+      state.recipe.servings
+    ).toFixed(2);
     //newQt = oldQT * newServings /oldServings
   });
   state.recipe.servings = newServings;
@@ -92,3 +98,31 @@ const clearBookmarks = function () {
   localStorage.clear('bookmarks');
 };
 // clearBookmarks();
+
+//upload recipe
+export const uploadRecipe = async function (newRecipe) {
+  const ingredients = Object.entries(newRecipe)
+    .filter(entry => {
+      return entry[0].startsWith('ingredient') && entry[1] !== '';
+    })
+    .map(ing => {
+      const ingArr = ing[1].split(',').map(el => el.trim());
+      if (ingArr.length !== 3) {
+        throw new Error('Wrong Ingredient format. Plase input correct format');
+      }
+      const [quantity, unit, description] = ingArr;
+      return { quantity: quantity ? +quantity : null, unit, description };
+    });
+  const recipe = {
+    title: newRecipe.title,
+    image_url: newRecipe.image,
+    publisher: newRecipe.publisher,
+    servings: newRecipe.servings,
+    cooking_time: newRecipe.cookingTime,
+    source_url: newRecipe.sourceUrl,
+    ingredients,
+  };
+  const res = await sendJSON(`${API_URL}recipes?key=${API_KEY}`, recipe);
+  state.recipe = res.data.recipe;
+  addBookmark(res.data.recipe);
+};

@@ -17,7 +17,9 @@ class SearchResultsView extends View {
                   <div class="preview__data">
                     <h4 class="preview__title">${value.title}</h4>
                     <p class="preview__publisher">${value.publisher}</p>
-                    <div class="preview__user-generated">
+                    <div class="preview__user-generated ${
+                      value.key ? '' : 'hidden'
+                    }">
                       <svg>
                         <use href="${icons}#icon-user"></use>
                       </svg>

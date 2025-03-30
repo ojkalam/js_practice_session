@@ -10,6 +10,7 @@ class BookmarksView extends View {
   generateMarkup() {
     const id = window.location.hash.slice(1);
     const output = this._data.reduce((acc, value) => {
+      //this view si similliar to search result view so we need to combined them to a Preview Class then we can use same desing to everywhere
       return (acc += `<li class="preview">
                 <a class="preview__link ${
                   value.id === id ? 'preview__link--active' : ''
@@ -20,6 +21,13 @@ class BookmarksView extends View {
                   <div class="preview__data">
                     <h4 class="preview__title">${value.title}</h4>
                     <p class="preview__publisher">${value.publisher}</p>
+                    <div class="preview__user-generated ${
+                      value.key ? '' : 'hidden'
+                    }">
+                      <svg>
+                        <use href="${icons}#icon-user"></use>
+                      </svg>
+                    </div>
                   </div>
                 </a>
               </li>`);
